@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/extensions/build_context_extensions.dart';
+import 'app_card.dart';
 
 class AppStatusView extends StatelessWidget {
   const AppStatusView({
@@ -21,28 +22,31 @@ class AppStatusView extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              style: context.textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              style: context.textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            if (actionLabel != null && onActionPressed != null) ...[
-              const SizedBox(height: 20),
-              FilledButton(
-                onPressed: onActionPressed,
-                child: Text(actionLabel!),
+        child: AppCard(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: context.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                style: context.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              if (actionLabel != null && onActionPressed != null) ...[
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: onActionPressed,
+                  child: Text(actionLabel!),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dailyder_frontend/src/core/env/app_environment.dart';
 import 'package:dailyder_frontend/src/core/telegram/telegram_web_app_bridge.dart';
 import 'package:dailyder_frontend/src/features/session/domain/entity/session_user.dart';

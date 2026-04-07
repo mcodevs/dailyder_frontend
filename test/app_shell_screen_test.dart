@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:dailyder_frontend/src/core/env/app_environment.dart';
 import 'package:dailyder_frontend/src/core/navigation/app_route_paths.dart';
 import 'package:dailyder_frontend/src/core/telegram/telegram_web_app_bridge.dart';
+import 'package:dailyder_frontend/src/core/theme/app_theme.dart';
 import 'package:dailyder_frontend/src/features/app_shell/presentation/screen/app_shell_screen.dart';
 import 'package:dailyder_frontend/src/features/session/domain/entity/session_user.dart';
 import 'package:dailyder_frontend/src/features/session/domain/repository/session_repository.dart';
@@ -54,45 +56,143 @@ void main() {
   testWidgets('AppShellScreen shows navigation items on wide layouts', (
     tester,
   ) async {
-    final repository = FakeAuthenticatedSessionRepository();
-    final cubit = SessionCubit(
-      environment: const AppEnvironment(
-        apiBaseUrl: 'http://localhost:8080',
-        devAuthEnabled: true,
-      ),
-      telegramWebAppBridge: TelegramWebAppBridge(),
-      sessionRepository: repository,
-      getCurrentSessionUseCase: GetCurrentSessionUseCase(
-        repository: repository,
-      ),
-      authenticateTelegramSessionUseCase: AuthenticateTelegramSessionUseCase(
-        repository: repository,
-      ),
-      authenticateDevSessionUseCase: AuthenticateDevSessionUseCase(
-        repository: repository,
-      ),
-      saveAccessTokenUseCase: SaveAccessTokenUseCase(repository: repository),
-      clearSessionUseCase: ClearSessionUseCase(repository: repository),
-    );
-
-    await cubit.loadCurrentUser();
+    final cubit = await buildAuthenticatedSessionCubit();
 
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(size: Size(1400, 900)),
-        child: MaterialApp(
-          home: BlocProvider.value(
-            value: cubit,
-            child: const AppShellScreen(
-              currentLocation: AppRoutePaths.today,
-              child: Placeholder(),
-            ),
+        child: BlocProvider.value(
+          value: cubit,
+          child: MaterialApp.router(
+            routerConfig: buildShellRouter(),
+            theme: AppTheme.light(),
           ),
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Bugungi tasklar'), findsOneWidget);
     expect(find.text('Group binding'), findsOneWidget);
+    expect(find.text('Today body'), findsOneWidget);
   });
+
+  testWidgets('AppShellScreen closes mobile drawer before navigation', (
+    tester,
+  ) async {
+    final cubit = await buildAuthenticatedSessionCubit();
+
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(size: Size(390, 844)),
+        child: BlocProvider.value(
+          value: cubit,
+          child: MaterialApp.router(
+            routerConfig: buildShellRouter(),
+            theme: AppTheme.light(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
+      isTrue,
+    );
+
+    await tester.tap(find.text('Yordam'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Help body'), findsOneWidget);
+    expect(
+      tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
+      isFalse,
+    );
+  });
+
+  testWidgets('AppShellScreen closes mobile drawer on sign out', (
+    tester,
+  ) async {
+    final cubit = await buildAuthenticatedSessionCubit();
+
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(size: Size(390, 844)),
+        child: BlocProvider.value(
+          value: cubit,
+          child: MaterialApp.router(
+            routerConfig: buildShellRouter(),
+            theme: AppTheme.light(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Chiqish'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Root body'), findsOneWidget);
+    expect(
+      tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
+      isFalse,
+    );
+  });
+}
+
+Future<SessionCubit> buildAuthenticatedSessionCubit() async {
+  final repository = FakeAuthenticatedSessionRepository();
+  final cubit = SessionCubit(
+    environment: const AppEnvironment(
+      apiBaseUrl: 'http://localhost:8080',
+      devAuthEnabled: true,
+    ),
+    telegramWebAppBridge: TelegramWebAppBridge(),
+    sessionRepository: repository,
+    getCurrentSessionUseCase: GetCurrentSessionUseCase(repository: repository),
+    authenticateTelegramSessionUseCase: AuthenticateTelegramSessionUseCase(
+      repository: repository,
+    ),
+    authenticateDevSessionUseCase: AuthenticateDevSessionUseCase(
+      repository: repository,
+    ),
+    saveAccessTokenUseCase: SaveAccessTokenUseCase(repository: repository),
+    clearSessionUseCase: ClearSessionUseCase(repository: repository),
+  );
+  await cubit.loadCurrentUser();
+  return cubit;
+}
+
+GoRouter buildShellRouter() {
+  return GoRouter(
+    initialLocation: AppRoutePaths.today,
+    routes: [
+      GoRoute(
+        path: AppRoutePaths.root,
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: Text('Root body'))),
+      ),
+      ShellRoute(
+        builder: (context, state, child) {
+          return AppShellScreen(currentLocation: state.uri.path, child: child);
+        },
+        routes: [
+          GoRoute(
+            path: AppRoutePaths.today,
+            builder: (context, state) =>
+                const Center(child: Text('Today body')),
+          ),
+          GoRoute(
+            path: AppRoutePaths.help,
+            builder: (context, state) => const Center(child: Text('Help body')),
+          ),
+        ],
+      ),
+    ],
+  );
 }

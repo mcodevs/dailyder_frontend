@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widget/app_card.dart';
 import '../../domain/entity/submission_record.dart';
+import 'today_submission_task_card.dart';
 
 class TodaySubmissionListPanel extends StatelessWidget {
   const TodaySubmissionListPanel({
@@ -28,50 +29,94 @@ class TodaySubmissionListPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Draft tasklar',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${items.length} ta item, tanlanganini tahrirlash mumkin.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.45),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Text(
+                  isBusy ? 'Yuklanmoqda...' : 'Tayyor',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
           Wrap(
             spacing: 12,
             runSpacing: 12,
             children: [
-              FilledButton(
+              FilledButton.icon(
                 onPressed: isBusy ? null : onCreatePressed,
-                child: const Text('Task qo‘shish'),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Task qo‘shish'),
               ),
-              OutlinedButton(
+              OutlinedButton.icon(
                 onPressed: isBusy ? null : onImportPressed,
-                child: const Text('Matndan import'),
-              ),
-              FilledButton.tonal(
-                onPressed: isBusy || items.isEmpty ? null : onSubmitPressed,
-                child: const Text('AM yuborish'),
+                icon: const Icon(Icons.upload_file_rounded),
+                label: const Text('Matndan import'),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           for (final item in items) ...[
-            ListTile(
-              contentPadding: EdgeInsets.zero,
+            TodaySubmissionTaskCard(
+              item: item,
               selected: selectedItemId == item.id,
-              title: Text('${item.projectName} - ${item.taskName}'),
-              subtitle: Text(item.subtaskNames.join(', ')),
-              trailing: Wrap(
-                spacing: 8,
-                children: [
-                  IconButton(
-                    onPressed: isBusy ? null : () => onEditPressed(item.id),
-                    icon: const Icon(Icons.edit_outlined),
-                  ),
-                  IconButton(
-                    onPressed: isBusy ? null : () => onDeletePressed(item.id),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
-                ],
-              ),
+              isBusy: isBusy,
+              onEditPressed: () => onEditPressed(item.id),
+              onDeletePressed: () => onDeletePressed(item.id),
             ),
-            const Divider(),
+            const SizedBox(height: 12),
           ],
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: isBusy || items.isEmpty ? null : onSubmitPressed,
+              icon: const Icon(Icons.send_rounded),
+              label: const Text('AM yuborish'),
+            ),
+          ),
         ],
       ),
     );
