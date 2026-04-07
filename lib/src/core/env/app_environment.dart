@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class AppEnvironment {
   const AppEnvironment({
     required this.apiBaseUrl,
@@ -7,18 +9,51 @@ class AppEnvironment {
   final String apiBaseUrl;
   final bool devAuthEnabled;
 
-  static AppEnvironment current() {
-    const configuredBaseUrl = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:8080',
-    );
+  static const String localApiBaseUrl = 'http://localhost:8080';
+
+  static AppEnvironment current({Uri? currentUri}) {
+    const configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
     const devAuthRaw = String.fromEnvironment(
       'DEV_AUTH_ENABLED',
       defaultValue: 'true',
     );
     return AppEnvironment(
-      apiBaseUrl: configuredBaseUrl,
+      apiBaseUrl: resolveApiBaseUrl(
+        configuredBaseUrl: configuredBaseUrl,
+        currentUri: currentUri ?? Uri.base,
+      ),
       devAuthEnabled: devAuthRaw.toLowerCase() == 'true',
     );
+  }
+
+  static String resolveApiBaseUrl({
+    required String configuredBaseUrl,
+    required Uri currentUri,
+    bool isWeb = kIsWeb,
+  }) {
+    final trimmedConfiguredBaseUrl = configuredBaseUrl.trim();
+    if (trimmedConfiguredBaseUrl.isNotEmpty) {
+      return trimmedConfiguredBaseUrl;
+    }
+
+    if (!isWeb) {
+      return localApiBaseUrl;
+    }
+
+    final isHttpScheme =
+        currentUri.scheme == 'http' || currentUri.scheme == 'https';
+    if (!isHttpScheme || currentUri.host.isEmpty) {
+      return localApiBaseUrl;
+    }
+
+    if (_isLocalDevelopmentHost(currentUri.host)) {
+      return 'http://${currentUri.host}:8080';
+    }
+
+    return currentUri.origin;
+  }
+
+  static bool _isLocalDevelopmentHost(String host) {
+    return host == 'localhost' || host == '127.0.0.1' || host == '::1';
   }
 }
