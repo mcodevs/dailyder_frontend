@@ -1,0 +1,11 @@
+{
+  "@@locale": "uz",
+  "appTitle": "Dailyder Mini App",
+  "loading": "Yuklanmoqda",
+  "refresh": "Yangilash",
+  "signOut": "Chiqish",
+  "today": "Bugungi tasklar",
+  "pmUpdate": "PM update",
+  "help": "Yordam",
+  "admin": "Admin"
+}

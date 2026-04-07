@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Dailyder Mini App",
+  "loading": "Loading",
+  "refresh": "Refresh",
+  "signOut": "Sign out",
+  "today": "Today",
+  "pmUpdate": "PM update",
+  "help": "Help",
+  "admin": "Admin"
+}
