@@ -12,15 +12,18 @@ void main() {
     expect(apiBaseUrl, 'https://api.dailyder.test');
   });
 
-  test('resolveApiBaseUrl uses current origin for hosted web sessions', () {
-    final apiBaseUrl = AppEnvironment.resolveApiBaseUrl(
-      configuredBaseUrl: '',
-      currentUri: Uri.parse('https://mini.dailyder.test/login'),
-      isWeb: true,
-    );
+  test(
+    'resolveApiBaseUrl uses the production backend for hosted web sessions',
+    () {
+      final apiBaseUrl = AppEnvironment.resolveApiBaseUrl(
+        configuredBaseUrl: '',
+        currentUri: Uri.parse('https://dailyder-e8a28.web.app/login'),
+        isWeb: true,
+      );
 
-    expect(apiBaseUrl, 'https://mini.dailyder.test');
-  });
+      expect(apiBaseUrl, AppEnvironment.productionApiBaseUrl);
+    },
+  );
 
   test('resolveApiBaseUrl keeps localhost mapped to backend port 8080', () {
     final apiBaseUrl = AppEnvironment.resolveApiBaseUrl(

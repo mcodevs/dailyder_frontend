@@ -95,10 +95,11 @@ Map<String, dynamic> castJsonMap(Object? value) {
 
 ApiException mapDioException(DioException error) {
   final data = error.response?.data;
+  final statusCode = error.response?.statusCode;
   if (data is Map && data['error'] is String) {
     return ApiException(
       message: data['error'] as String,
-      statusCode: error.response?.statusCode,
+      statusCode: statusCode,
     );
   }
 
@@ -106,7 +107,7 @@ ApiException mapDioException(DioException error) {
     return ApiException(
       message:
           'API bilan bog‘lanib bo‘lmadi. Backend server ishlayotganini va API manzili to‘g‘ri ekanini tekshiring.',
-      statusCode: error.response?.statusCode,
+      statusCode: statusCode,
     );
   }
 
@@ -115,10 +116,18 @@ ApiException mapDioException(DioException error) {
       error.type == DioExceptionType.receiveTimeout) {
     return ApiException(
       message: 'Server bilan bog‘lanish vaqti tugadi. Qayta urinib ko‘ring.',
-      statusCode: error.response?.statusCode,
+      statusCode: statusCode,
+    );
+  }
+
+  if (statusCode == 404) {
+    return const ApiException(
+      message:
+          'API route topilmadi. Frontend noto‘g‘ri backend manziliga ulanayotgan bo‘lishi mumkin.',
+      statusCode: 404,
     );
   }
 
   final message = error.message ?? 'Server bilan bog‘lanishda xato.';
-  return ApiException(message: message, statusCode: error.response?.statusCode);
+  return ApiException(message: message, statusCode: statusCode);
 }

@@ -50,7 +50,7 @@ class SessionGateScreen extends StatelessWidget {
                         style: const TextStyle(color: Colors.red),
                       ),
                     ],
-                    if (state.devAuthEnabled) ...[
+                    if (state.devAuthEnabled && !state.telegramEnvironment) ...[
                       const SizedBox(height: 24),
                       DevLoginForm(
                         isLoading: state.status == Status.loading,

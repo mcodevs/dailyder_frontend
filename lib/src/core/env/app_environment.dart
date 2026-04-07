@@ -10,6 +10,7 @@ class AppEnvironment {
   final bool devAuthEnabled;
 
   static const String localApiBaseUrl = 'http://localhost:8080';
+  static const String productionApiBaseUrl = 'https://dailyder-bot.fly.dev';
 
   static AppEnvironment current({Uri? currentUri}) {
     const configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
@@ -50,7 +51,7 @@ class AppEnvironment {
       return 'http://${currentUri.host}:8080';
     }
 
-    return currentUri.origin;
+    return productionApiBaseUrl;
   }
 
   static bool _isLocalDevelopmentHost(String host) {

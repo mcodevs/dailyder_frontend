@@ -41,8 +41,22 @@ class SessionCubit extends Cubit<SessionState> {
 
   Future<void> bootstrap() async {
     emit(state.copyWith(status: Status.loading, errorMessage: null));
-    final initData = telegramWebAppBridge.initData;
+    final initialTelegramEnvironment = telegramWebAppBridge.isAvailable;
+    final initData = await telegramWebAppBridge.waitForInitData();
+    final telegramEnvironment =
+        initialTelegramEnvironment ||
+        initData.trim().isNotEmpty ||
+        telegramWebAppBridge.isAvailable;
+    emit(
+      state.copyWith(
+        status: Status.loading,
+        errorMessage: null,
+        telegramEnvironment: telegramEnvironment,
+      ),
+    );
     if (initData.isNotEmpty) {
+      telegramWebAppBridge.ready();
+      telegramWebAppBridge.expand();
       final authResult = await authenticateTelegramSessionUseCase.execute(
         initData,
       );
@@ -56,6 +70,18 @@ class SessionCubit extends Cubit<SessionState> {
           await saveAccessTokenUseCase.execute(accessToken);
           await loadCurrentUser();
         },
+      );
+      return;
+    }
+    if (telegramEnvironment) {
+      emit(
+        state.copyWith(
+          status: Status.error,
+          clearUser: true,
+          errorMessage:
+              'Telegram sessiyasi topilmadi. Mini Appni Telegram ichidan qayta oching.',
+          telegramEnvironment: true,
+        ),
       );
       return;
     }

@@ -8,6 +8,7 @@ void main() {
       final isAvailable = isTelegramWebAppContext(
         initData: '',
         platform: 'unknown',
+        currentUri: Uri.parse('https://dailyder-e8a28.web.app/'),
       );
 
       expect(isAvailable, isFalse);
@@ -18,6 +19,7 @@ void main() {
     final isAvailable = isTelegramWebAppContext(
       initData: 'query_id=123',
       platform: 'unknown',
+      currentUri: Uri.parse('https://dailyder-e8a28.web.app/'),
     );
 
     expect(isAvailable, isTrue);
@@ -27,6 +29,19 @@ void main() {
     final isAvailable = isTelegramWebAppContext(
       initData: '',
       platform: 'tdesktop',
+      currentUri: Uri.parse('https://dailyder-e8a28.web.app/'),
+    );
+
+    expect(isAvailable, isTrue);
+  });
+
+  test('returns true when Telegram platform comes from launch URL', () {
+    final isAvailable = isTelegramWebAppContext(
+      initData: '',
+      platform: null,
+      currentUri: Uri.parse(
+        'https://dailyder-e8a28.web.app/?tgWebAppPlatform=ios',
+      ),
     );
 
     expect(isAvailable, isTrue);

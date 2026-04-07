@@ -1,63 +1,75 @@
-import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
+import 'dart:async';
+
+import 'package:telegram_web_app/telegram_web_app.dart';
 
 import 'telegram_web_app_context.dart';
 
 class TelegramWebAppBridge {
-  TelegramWebAppBridge() : webApp = resolveWebApp();
+  bool get isAvailable => isTelegramWebAppContext(
+    initData: initData,
+    platform: platform,
+    currentUri: Uri.base,
+  );
 
-  final JSObject? webApp;
+  String get initData => _readInitData();
 
-  bool get isAvailable =>
-      isTelegramWebAppContext(initData: initData, platform: platform);
+  String? get platform => _readPlatform();
 
-  String get initData {
-    final app = webApp;
-    if (app == null) {
-      return '';
+  Future<String> waitForInitData({
+    Duration timeout = const Duration(seconds: 5),
+    Duration pollInterval = const Duration(milliseconds: 100),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (true) {
+      final currentInitData = initData.trim();
+      if (currentInitData.isNotEmpty) {
+        return currentInitData;
+      }
+      if (DateTime.now().isAfter(deadline)) {
+        return currentInitData;
+      }
+      await Future<void>.delayed(pollInterval);
     }
-    final value = app['initData'];
-    final dartValue = value?.dartify();
-    return dartValue is String ? dartValue : '';
-  }
-
-  String? get platform {
-    final app = webApp;
-    if (app == null) {
-      return null;
-    }
-    final value = app['platform'];
-    final dartValue = value?.dartify();
-    return dartValue is String ? dartValue : null;
   }
 
   void ready() {
-    final app = webApp;
-    if (app == null) {
-      return;
-    }
-    app.callMethod('ready'.toJS);
+    _runSafely((telegram) => telegram.ready());
   }
 
   void expand() {
-    final app = webApp;
-    if (app == null) {
-      return;
-    }
-    app.callMethod('expand'.toJS);
+    _runSafely((telegram) => telegram.expand());
   }
 
-  static JSObject? resolveWebApp() {
-    final telegram = globalContext['Telegram'];
-    if (telegram == null ||
-        telegram.isUndefinedOrNull ||
-        !telegram.isA<JSObject>()) {
+  String _readInitData() {
+    try {
+      return TelegramWebApp.instance.initData.raw.trim();
+    } on Object {
+      return '';
+    }
+  }
+
+  String? _readPlatform() {
+    try {
+      final value = TelegramWebApp.instance.platform.trim();
+      if (value.isNotEmpty && value.toLowerCase() != 'unknown') {
+        return value;
+      }
+    } on Object {
+      // Fall back to the launch URL when Telegram JS is not ready yet.
+    }
+
+    final queryPlatform = Uri.base.queryParameters['tgWebAppPlatform']?.trim();
+    if (queryPlatform == null || queryPlatform.isEmpty) {
       return null;
     }
-    final webApp = (telegram as JSObject)['WebApp'];
-    if (webApp == null || webApp.isUndefinedOrNull || !webApp.isA<JSObject>()) {
-      return null;
+    return queryPlatform;
+  }
+
+  void _runSafely(void Function(TelegramWebApp telegram) action) {
+    try {
+      action(TelegramWebApp.instance);
+    } on Object {
+      // Ignore when the app is opened outside Telegram.
     }
-    return webApp as JSObject;
   }
 }

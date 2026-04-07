@@ -25,11 +25,12 @@ class SessionState extends Equatable {
     SessionUser? user,
     bool clearUser = false,
     String? errorMessage,
+    bool? telegramEnvironment,
   }) {
     return SessionState(
       status: status ?? this.status,
       devAuthEnabled: devAuthEnabled,
-      telegramEnvironment: telegramEnvironment,
+      telegramEnvironment: telegramEnvironment ?? this.telegramEnvironment,
       user: clearUser ? null : user ?? this.user,
       errorMessage: errorMessage,
     );
