@@ -1,9 +1,10 @@
 FLUTTER ?= flutter
 FIREBASE ?= firebase
 API_BASE_URL ?= https://dailyder-bot.fly.dev
+DEV_AUTH_ENABLED ?= false
 
 BUILD_DIR := build/web
-FLUTTER_DART_DEFINES := --dart-define=API_BASE_URL=$(API_BASE_URL)
+FLUTTER_DART_DEFINES := --dart-define=API_BASE_URL=$(API_BASE_URL) --dart-define=DEV_AUTH_ENABLED=$(DEV_AUTH_ENABLED)
 
 .PHONY: help build deploy clean
 
