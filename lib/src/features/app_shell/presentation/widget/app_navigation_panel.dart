@@ -48,7 +48,7 @@ class AppNavigationPanel extends StatelessWidget {
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: Icon(
-                            IconData(item.icon, fontFamily: 'MaterialIcons'),
+                            item.icon,
                           ),
                           title: Text(item.title),
                           selected: currentLocation == item.location,
@@ -81,58 +81,58 @@ List<AppNavigationItem> buildNavigationItems() {
     AppNavigationItem(
       title: 'Bugungi tasklar',
       location: AppRoutePaths.today,
-      icon: 0xe88a,
+      icon: IconData(0xe88a, fontFamily: 'MaterialIcons'),
     ),
     AppNavigationItem(
       title: 'PM update',
       location: AppRoutePaths.pm,
-      icon: 0xe192,
+      icon: IconData(0xe192, fontFamily: 'MaterialIcons'),
     ),
     AppNavigationItem(
       title: 'Yordam',
       location: AppRoutePaths.help,
-      icon: 0xe887,
+      icon: IconData(0xe887, fontFamily: 'MaterialIcons'),
     ),
     AppNavigationItem(
       title: 'Admin overview',
       location: AppRoutePaths.adminOverview,
-      icon: 0xe8ef,
+      icon: IconData(0xe8ef, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Pending',
       location: AppRoutePaths.adminPending,
-      icon: 0xe8b5,
+      icon: IconData(0xe8b5, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Metrics',
       location: AppRoutePaths.adminMetrics,
-      icon: 0xe24b,
+      icon: IconData(0xe24b, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Users',
       location: AppRoutePaths.adminUsers,
-      icon: 0xe7fd,
+      icon: IconData(0xe7fd, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Reminders',
       location: AppRoutePaths.adminReminders,
-      icon: 0xe7f4,
+      icon: IconData(0xe7f4, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Warnings',
       location: AppRoutePaths.adminWarnings,
-      icon: 0xe002,
+      icon: IconData(0xe002, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
     AppNavigationItem(
       title: 'Group binding',
       location: AppRoutePaths.adminGroupBinding,
-      icon: 0xe157,
+      icon: IconData(0xe157, fontFamily: 'MaterialIcons'),
       adminOnly: true,
     ),
   ];

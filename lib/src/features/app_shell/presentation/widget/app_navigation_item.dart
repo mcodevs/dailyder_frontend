@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AppNavigationItem {
   const AppNavigationItem({
     required this.title,
@@ -8,6 +10,6 @@ class AppNavigationItem {
 
   final String title;
   final String location;
-  final int icon;
+  final IconData icon;
   final bool adminOnly;
 }
